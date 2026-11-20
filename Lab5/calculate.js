@@ -13,8 +13,9 @@ function toNumber(value) {
 // Sends the result as a string, or a 400 with a message for bad input.
 // res.send(42) would be treated as a status code, hence String(result).
 export default function calculate(res, operation, rawA, rawB) {
-  const compute = operations[operation];
-  if (!compute) {
+  // Object.hasOwn keeps inherited names like toString, constructor, and
+  // __proto__ from being treated as operations.
+  if (typeof operation !== "string" || !Object.hasOwn(operations, operation)) {
     res
       .status(400)
       .send(
@@ -32,5 +33,5 @@ export default function calculate(res, operation, rawA, rawB) {
     res.status(400).send("Cannot divide by zero.");
     return;
   }
-  res.send(String(compute(a, b)));
+  res.send(String(operations[operation](a, b)));
 }
